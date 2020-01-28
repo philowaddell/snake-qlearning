@@ -30,7 +30,7 @@ public class Game extends Canvas implements Runnable {
 	public Game() {
 		new Window( WINDOW_WIDTH, WINDOW_HEIGHT, "Snake AI", this );
 		
-		snake = new Snake( 1, 1, TILE_SIZE );
+		snake = new Snake( 25, 25, TILE_SIZE );
 		apples = new ArrayList<Apple>();
 		apples.add( new Apple( FRAME_SIZE, TILE_SIZE ) );
 		agent = new Agent( snake, apples, this );

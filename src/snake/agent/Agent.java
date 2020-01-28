@@ -1,5 +1,6 @@
 package snake.agent;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -22,17 +23,20 @@ public class Agent {
 	private boolean isRightClear;
 	private boolean isAheadClear;
 	
-	private float alpha = 0;
-	private float gamma = 0;
-	
-	private boolean[] state = new boolean[6];
 	private Action action;
 	
+	private float alpha = 0.8f;
+	private float gamma = 1.0f;
+	private float epsilon = 0.7f;
 	
+	private float reward = 0.0f;
 	
+	private boolean[] state = new boolean[6];
+	private float[] qValues;
+
 	private Game game;
 	
-	private HashMap<SAP> policy;
+	private HashMap<String, float[]> qMap;
 	
 	
 	
@@ -41,6 +45,7 @@ public class Agent {
 		this.apples = apples;
 		this.game = game;
 		r = new Random();
+		qMap = new HashMap<String, float[]>();
 	}
 	
 	public void tick() {
@@ -60,9 +65,48 @@ public class Agent {
 		state[4] = isAppleRight;
 		state[5] = isAppleAhead;
 		
+		String key = state.toString();
 		
-		if( isAppleLeft && isLeftClear) {
-				snake.turnLeft();
+		if( qMap.containsKey( key ) == false ) {
+			qMap.put( key, new float[3] );
+		}
+		
+		if( r.nextFloat() > epsilon ) {
+			action = Action.valueOf(r.nextInt(3));
+		}
+		else {
+			action = Action.valueOf( getMaxQ( qMap.get( key ) ) );
+		}
+		
+		if( action == Action.LEFT ) {
+			snake.turnLeft();
+		}
+		else if( action == Action.RIGHT ) {
+			snake.turnRight();
+		}
+		else if( action == Action.NOTHING ) {
+			
+		}
+		
+		if( snake.intersects( new Point( apples.get(0).getX(), apples.get(0).getY() ) ) ) {
+			reward = 10;
+		}
+		else if( snake.intersects( new Point( snake.getX(), snake.getY() ) ) ) {
+			reward = -1;
+		}
+		
+		
+		
+				
+				
+				
+				
+				
+				
+		
+		
+		/*if( isAppleLeft && isLeftClear) {
+			snake.turnLeft();
 		}
 		else if( isAppleRight && isRightClear ) {
 			snake.turnRight();
@@ -78,10 +122,22 @@ public class Agent {
 		}
 		else {
 			game.gameOver();
-		}
+		}*/
 			
 
 			
+	}
+	
+	private int getMaxQ( float[] values ) {
+		float max = -1.0f;
+		int index = -1;
+		for( int i = 0; i < values.length; i++ ) {
+			if( values[i] > max ) {
+				max = values[i];
+				index = i;
+			}
+		}
+		return index;
 	}
 
 }
