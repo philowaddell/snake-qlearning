@@ -8,6 +8,7 @@ public class Snake extends GameObject{
 	private ArrayList<BodyPart> body;
 	private int size;
 	private Direction direction;
+	private int deaths = 0;
 	
 	public Snake( int x, int y, int ts ) {
 		super( x, y, ts );
@@ -78,122 +79,154 @@ public class Snake extends GameObject{
 			b.render(g);
 	}
 
-	public Point isLeftClear() {
+	public boolean isLeftClear() {
 		if( direction == Direction.UP ) {
-			return new Point( x - 1 , y );
+			return !isDead(new Point( x - 1 , y ));
 		}
 		else if( direction == Direction.RIGHT ) {
-			return new Point( x , y - 1 );
+			return !isDead(new Point( x , y - 1 ));
 		}
 		else if( direction == Direction.DOWN ) {
-			return new Point( x + 1 , y );
+			return !isDead(new Point( x + 1 , y ));
 		}
 		else if( direction == Direction.LEFT ) {
-			return new Point( x , y + 1 );
-		}
-		
-		return null;
-	}
-
-	public Point isRightClear() {
-		if( direction == Direction.UP ) {
-			return new Point( x + 1 , y );
-		}
-		else if( direction == Direction.RIGHT ) {
-			return new Point( x , y + 1 );
-		}
-		else if( direction == Direction.DOWN ) {
-			return new Point( x - 1 , y );
-		}
-		else if( direction == Direction.LEFT ) {
-			return new Point( x , y - 1 );
-		}
-		
-		return null;
-	}
-
-	public Point isAheadClear() {
-		if( direction == Direction.UP ) {
-			return new Point( x , y - 1 );
-		}
-		else if( direction == Direction.RIGHT ) {
-			return new Point( x + 1, y );
-		}
-		else if( direction == Direction.DOWN ) {
-			return new Point( x , y + 1 );
-		}
-		else if( direction == Direction.LEFT ) {
-			return new Point( x - 1, y );
-		}
-		
-		return null;
-	}
-
-	public boolean intersects( Point p ) {
-		
-		if( p.x < 1 || p.x >= 44 ||  p.y < 1 || p.y >= 44 ) {
-			return false;
-		}
-		
-		for( BodyPart b : body ) {
-			if( p.x == b.getX() && p.y == b.getY() )
-				return false;
-		}
-		
-		return true;
-	}
-
-	public boolean isAppleLeft(Apple apple) {
-		if( direction == Direction.UP ) {
-			if( apple.getX() < x )
-				return true;
-			return false;
-		}
-		else if( direction == Direction.RIGHT ) {
-			if( apple.getY() < y )
-				return true;
-			return false;
-		}
-		else if( direction == Direction.DOWN ) {
-			if( apple.getX() > x )
-				return true;
-			return false;
-		}
-		else if( direction == Direction.LEFT ) {
-			if( apple.getY() > y )
-				return true;
-			return false;
+			return !isDead(new Point( x , y + 1 ));
 		}
 		
 		return false;
 	}
 
-	public boolean isAppleRight(Apple apple) {
+	public boolean isRightClear() {
 		if( direction == Direction.UP ) {
-			if( apple.getX() > x )
-				return true;
-			return false;
+			return !isDead(new Point( x + 1 , y ));
 		}
 		else if( direction == Direction.RIGHT ) {
-			if( apple.getY() > y )
-				return true;
-			return false;
+			return !isDead(new Point( x , y + 1 ));
 		}
 		else if( direction == Direction.DOWN ) {
-			if( apple.getX() < x )
-				return true;
-			return false;
+			return !isDead(new Point( x - 1 , y ));
 		}
 		else if( direction == Direction.LEFT ) {
-			if( apple.getY() < y )
-				return true;
-			return false;
+			return !isDead(new Point( x , y - 1 ));
 		}
 		
+		return false;
+	}
+
+	public boolean isAheadClear() {
+		if( direction == Direction.UP ) {
+			return !isDead(new Point( x , y - 1 ));
+		}
+		else if( direction == Direction.RIGHT ) {
+			return !isDead(new Point( x + 1, y ));
+		}
+		else if( direction == Direction.DOWN ) {
+			return !isDead(new Point( x , y + 1 ));
+		}
+		else if( direction == Direction.LEFT ) {
+			return !isDead(new Point( x - 1, y ));
+		}
+		
+		return false;
+	}
+
+	public boolean intersects( Point p ) {
+		for( int i = 0; i < body.size() - 1; i++ ) {
+			BodyPart b = body.get(i);
+			if( p.x == b.getX() && p.y == b.getY() )
+				return true;
+		}
+		return false;
+	}
+	
+	public boolean isDead( Point p ) {
+		
+		if( p.x < 1 || p.x >= 44 ||  p.y < 1 || p.y >= 44 ) {
+			return true;
+		}
+		
+		if( intersects(p) ) {
+			return true;
+		}
 		return false;
 	}
 
 	public void grow() {
 		size++;	
+	}
+
+	public void reset() {
+		body.clear();
+		size = 5;
+		Game.deaths++;
+		if( Game.score > Game.hiscore )
+			Game.hiscore = Game.score;
+		Game.score = 0;
+		x = 22;
+		y = 22;
+	}
+
+	public boolean isAppleLeft(Apple apple) {
+		if( direction == Direction.UP && apple.getX() < x ) {
+			return true;
+		}
+		else if( direction == Direction.RIGHT && apple.getY() < y ) {
+			return true;
+		}
+		else if( direction == Direction.DOWN && apple.getX() > x ) {
+			return true;
+		}
+		else if( direction == Direction.LEFT && apple.getY() > y ) {
+			return true;
+		}
+		return false;
+	}
+
+	public boolean isAppleRight(Apple apple) {
+		if( direction == Direction.UP && apple.getX() > x ) {
+			return true;
+		}
+		else if( direction == Direction.RIGHT && apple.getY() > y ) {
+			return true;
+		}
+		else if( direction == Direction.DOWN && apple.getX() < x ) {
+			return true;
+		}
+		else if( direction == Direction.LEFT && apple.getY() < y ) {
+			return true;
+		}
+		return false;
+	}
+
+	public boolean isAppleAhead(Apple apple) {
+		if( direction == Direction.UP && apple.getX() == x && apple.getY() < y ) {
+			return true;
+		}
+		else if( direction == Direction.RIGHT && apple.getY() == y && apple.getX() > x ) {
+			return true;
+		}
+		else if( direction == Direction.DOWN && apple.getX() == x && apple.getY() > y ) {
+			return true;
+		}
+		else if( direction == Direction.LEFT && apple.getY() == y && apple.getX() < x ) {
+			return true;
+		}
+		return false;
+	}
+
+	public boolean isAppleBehind(Apple apple) {
+		if( direction == Direction.UP && apple.getX() == x && apple.getY() > y ) {
+			return true;
+		}
+		else if( direction == Direction.RIGHT && apple.getY() == y && apple.getX() < x ) {
+			return true;
+		}
+		else if( direction == Direction.DOWN && apple.getX() == x && apple.getY() < y ) {
+			return true;
+		}
+		else if( direction == Direction.LEFT && apple.getY() == y && apple.getX() > x ) {
+			return true;
+		}
+		return false;
 	}
 }
