@@ -11,7 +11,6 @@ public class Agent {
 	
 	private Snake snake;
 	private ArrayList<Apple> apples;
-	private Random r;
 	
 	private boolean isAppleLeft;
 	private boolean isAppleRight;
@@ -29,7 +28,6 @@ public class Agent {
 		this.snake = snake;
 		this.apples = apples;
 		this.game = game;
-		r = new Random();
 	}
 	
 	public void tick() {

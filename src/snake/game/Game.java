@@ -24,8 +24,6 @@ public class Game extends Canvas implements Runnable {
 	private Agent agent;
 	
 	private int score = 0;
-
-	private int ticks = 0;
 	
 	public Game() {
 		new Window( WINDOW_WIDTH, WINDOW_HEIGHT, "Snake AI", this );
