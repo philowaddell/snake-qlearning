@@ -18,19 +18,21 @@ public class Game extends Canvas implements Runnable {
 	private boolean isRunning = false;
 	private Thread thread;
 	
+	public static int deaths = 0;
+	public static int score = 0;
+	public static int hiscore = 0;
+	
 	private Snake snake;
 	private ArrayList<Apple> apples;
 	
 	private Agent agent;
-	
-	private int score = 0;
 
 	private int ticks = 0;
 	
 	public Game() {
 		new Window( WINDOW_WIDTH, WINDOW_HEIGHT, "Snake AI", this );
 		
-		snake = new Snake( 25, 25, TILE_SIZE );
+		snake = new Snake( 22, 22, TILE_SIZE );
 		apples = new ArrayList<Apple>();
 		apples.add( new Apple( FRAME_SIZE, TILE_SIZE ) );
 		agent = new Agent( snake, apples, this );
@@ -86,9 +88,9 @@ public class Game extends Canvas implements Runnable {
 	}
 	
 	public void tick() {
-		
-			snake.tick();
-		
+		if( ticks > 0 ) {
+			//snake.tick();
+			
 			if( apples.get(0).getX() == snake.getX() && apples.get(0).getY() == snake.getY() ) {
 				apples.remove(0);
 				snake.grow();
@@ -100,6 +102,12 @@ public class Game extends Canvas implements Runnable {
 			}	
 			
 			agent.tick();
+			
+			ticks = 0;
+		}
+		
+		ticks++;
+
 	}
 	
 	public void render() {
@@ -130,7 +138,9 @@ public class Game extends Canvas implements Runnable {
 		g.fillRect(0, FRAME_SIZE -TILE_SIZE, FRAME_SIZE, TILE_SIZE);
 		
 		g.setColor( Color.BLACK );
-		g.drawString("Score: " + Integer.toString( score ), TILE_SIZE, TILE_SIZE );
+		g.drawString("Deaths: " + Integer.toString( deaths ) + 
+				"  |  Score: " + Integer.toString( score ) + 
+				"  |  Hi-Score: " + Integer.toString( hiscore ), TILE_SIZE, TILE_SIZE );
 		
 		bs.show();
 	}

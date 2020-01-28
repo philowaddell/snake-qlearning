@@ -25,47 +25,49 @@ public class Agent {
 	
 	private Action action;
 	
-	private float alpha = 0.8f;
-	private float gamma = 1.0f;
-	private float epsilon = 0.7f;
+	private float alpha = 0.6f;
+	private float gamma = 0.8f;
+	private float epsilon = 0.99f;
 	
-	private float reward = 0.0f;
+	private float reward = 0;
 	
-	private boolean[] state = new boolean[6];
+	private boolean[] state = new boolean[7];
 	private float[] qValues;
+	
+	private int dist;
+	private int oldDist;
 
 	private Game game;
 	
 	private HashMap<String, float[]> qMap;
-	
-	
 	
 	public Agent( Snake snake, ArrayList<Apple> apples, Game game ) {
 		this.snake = snake;
 		this.apples = apples;
 		this.game = game;
 		r = new Random();
+		qValues = new float[3];
 		qMap = new HashMap<String, float[]>();
+		dist = distanceToApple();
 	}
 	
 	public void tick() {
 		
-		isLeftClear = snake.intersects( snake.isLeftClear() );
-		isRightClear = snake.intersects( snake.isRightClear() );
-		isAheadClear = snake.intersects( snake.isAheadClear() );
-		isAppleLeft = snake.isAppleLeft( apples.get(0) );
-		isAppleRight = snake.isAppleRight( apples.get(0) );
-		if( !isAppleLeft && !isAppleRight )
-			isAppleAhead = true;
+		oldDist = dist;
 		
-		state[0] = isLeftClear;
-		state[1] = isRightClear;
-		state[2] = isAheadClear;
-		state[3] = isAppleLeft;
-		state[4] = isAppleRight;
-		state[5] = isAppleAhead;
+		state[0] = snake.isLeftClear();
+		state[1] = snake.isRightClear();
+		state[2] = snake.isAheadClear();
+		state[3] = snake.isAppleLeft(apples.get(0));
+		state[4] = snake.isAppleRight(apples.get(0));
+		state[5] = snake.isAppleAhead(apples.get(0));
+		state[6] = snake.isAppleBehind(apples.get(0));
+				
 		
-		String key = state.toString();
+		String key = "";
+		
+		for( boolean s : state )
+			key += Integer.toString((s ? 1 : 0));
 		
 		if( qMap.containsKey( key ) == false ) {
 			qMap.put( key, new float[3] );
@@ -88,50 +90,45 @@ public class Agent {
 			
 		}
 		
+		snake.tick();
+		
+		dist = distanceToApple();
+		
 		if( snake.intersects( new Point( apples.get(0).getX(), apples.get(0).getY() ) ) ) {
-			reward = 10;
+			reward = 10.0f;
 		}
-		else if( snake.intersects( new Point( snake.getX(), snake.getY() ) ) ) {
-			reward = -1;
+		else if( snake.isDead( new Point( snake.getX(), snake.getY() ) ) ) {
+			reward = -10.0f;
+			snake.reset();
 		}
-		
-		
-		
-				
-				
-				
-				
-				
-				
-		
-		
-		/*if( isAppleLeft && isLeftClear) {
-			snake.turnLeft();
+		else if( oldDist > dist ) {
+			reward = 0.1f;
 		}
-		else if( isAppleRight && isRightClear ) {
-			snake.turnRight();
-		}
-		else if( isAppleAhead && isAheadClear ) {
-
-		}
-		else if( isLeftClear ){
-			snake.turnLeft();
-		}
-		else if( isRightClear ){
-			snake.turnRight();
+		else if( oldDist < dist ) {
+			reward = -0.15f;
 		}
 		else {
-			game.gameOver();
-		}*/
-			
-
-			
+			reward = 0;
+		}
+		
+		qValues = qMap.get(key);
+		
+		qValues[action.ordinal()] = ((1 - alpha) * qValues[action.ordinal()]) + (alpha * ( reward ));
+		
+		//qValues[action.ordinal()] = qValues[action.ordinal()] + alpha * ( reward + ( gamma * 10 - qValues[action.ordinal()] ) );
+		
+		qMap.put(key, qValues);
 	}
 	
+
+	private int distanceToApple() {
+		return Math.abs( apples.get(0).getX() - snake.getX() ) + Math.abs( apples.get(0).getY() - snake.getY() );
+	}
+
 	private int getMaxQ( float[] values ) {
-		float max = -1.0f;
-		int index = -1;
-		for( int i = 0; i < values.length; i++ ) {
+		float max = values[0];
+		int index = 0;
+		for( int i = 1; i < values.length; i++ ) {
 			if( values[i] > max ) {
 				max = values[i];
 				index = i;
