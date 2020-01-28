@@ -114,11 +114,11 @@ public class Game extends Canvas implements Runnable {
 		g.setColor( Color.BLACK );
 		g.fillRect( 0, 0, FRAME_SIZE * 2, FRAME_SIZE * 2 );
 		
-		g.setColor( Color.GREEN );
+		/*g.setColor( Color.GREEN );
 		for( int i = 0; i < FRAME_SIZE; i++ ) {
 			g.drawLine( 0, i * TILE_SIZE, FRAME_SIZE, i * TILE_SIZE );
 			g.drawLine( i * TILE_SIZE, 0, i * TILE_SIZE, FRAME_SIZE );
-		}
+		}*/
 		
 		snake.render(g);
 		apples.get(0).render(g);
