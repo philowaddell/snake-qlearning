@@ -25,8 +25,8 @@ public class Agent {
 	
 	private Action action;
 	
-	private float alpha = 0.6f;
-	private float gamma = 0.8f;
+	private float alpha = 0.7f;
+	private float gamma = 0.8f; // 0.025
 	private float epsilon = 0.99f;
 	
 	private float reward = 0;
@@ -95,25 +95,25 @@ public class Agent {
 		dist = distanceToApple();
 		
 		if( snake.intersects( new Point( apples.get(0).getX(), apples.get(0).getY() ) ) ) {
-			reward = 10.0f;
+			reward = 50.0f;
 		}
 		else if( snake.isDead( new Point( snake.getX(), snake.getY() ) ) ) {
-			reward = -10.0f;
+			reward = -200.0f;
 			snake.reset();
 		}
 		else if( oldDist > dist ) {
-			reward = 0.1f;
+			reward = 0.5f;
 		}
 		else if( oldDist < dist ) {
-			reward = -0.15f;
+			reward = -0.5f;
 		}
 		else {
-			reward = 0;
+			reward = -0.5f;
 		}
 		
 		qValues = qMap.get(key);
 		
-		qValues[action.ordinal()] = ((1 - alpha) * qValues[action.ordinal()]) + (alpha * ( reward ));
+		qValues[action.ordinal()] = qValues[action.ordinal()] + alpha * ( reward  + ( gamma * 10 ) - qValues[action.ordinal()] );
 		
 		//qValues[action.ordinal()] = qValues[action.ordinal()] + alpha * ( reward + ( gamma * 10 - qValues[action.ordinal()] ) );
 		
